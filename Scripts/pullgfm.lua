@@ -36,20 +36,24 @@ for _, v in pairs(arg) do
 	end
 end
 
-print("Welcome to the pull script for GraphicalFramework (LUA 5.2)...")
+local libFolder = arg[#arg] .. "/lib"
+local programFolder = arg[#arg] .. "/gfmprograms"
 
+print("Welcome to the pull script for GraphicalFramework (LUA 5.2)...")
 if options[1][2] == true then
 	print("Pulling GraphicalFramework libraries...")
+	os.execute("mkdir " .. libFolder)
 	for _, element in ipairs(libs) do
-		os.execute(downloadString .. " " .. element[2] .. " " .. arg[#arg] .. "/lib/" .. element[1])
+		os.execute(downloadString .. " " .. element[2] .. " " .. libFolder .. "/" .. element[1])
 	end
 	print("Finished pulling")
 end
 
 if options[2][2] == true then
 	print("Pulling Example/Usefull programs...")
+	os.execute("mkdir " .. programFolder)
 	for _, element in ipairs(programs) do
-		os.execute(downloadString .. " " .. element[2] .. " " .. arg[1] .. "/programs/" .. element[1])
+		os.execute(downloadString .. " " .. element[2] .. " " .. programFolder .. "/" .. element[1])
 	end
 	print("Finished pulling")
 end
