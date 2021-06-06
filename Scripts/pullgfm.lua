@@ -18,7 +18,7 @@ options = {
 	{"-p", false},
 }
 
-if(#arg >= 1) then
+if(#arg < 1) then
 	print("Wrong number of arguments: USAGE pullfgm <destination_folder>")
 	os.exit(1)
 end
