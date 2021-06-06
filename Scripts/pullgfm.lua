@@ -41,7 +41,7 @@ print("Welcome to the pull script for GraphicalFramework (LUA 5.2)...")
 if options[1][2] == true then
 	print("Pulling GraphicalFramework libraries...")
 	for _, element in ipairs(libs) do
-		os.execute(downloadString .. " " .. element[2] .. " " .. arg[#arg] .. "/Lib/" .. element[1])
+		os.execute(downloadString .. " " .. element[2] .. " " .. arg[#arg] .. "/lib/" .. element[1])
 	end
 	print("Finished pulling")
 end
@@ -49,7 +49,7 @@ end
 if options[2][2] == true then
 	print("Pulling Example/Usefull programs...")
 	for _, element in ipairs(programs) do
-		os.execute(downloadString .. element[2] .. " " .. arg[1] .. "/Programs/" .. element[1])
+		os.execute(downloadString .. " " .. element[2] .. " " .. arg[1] .. "/programs/" .. element[1])
 	end
 	print("Finished pulling")
 end
