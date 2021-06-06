@@ -11,7 +11,7 @@ programs = {
 }
 
 arg = {...}
-downloadString = "wget --no-check-certificate --content-disposition "
+downloadString = "wget --no-check-certificate --content-disposition -f"
 
 options = {
 	{"-l", false},
