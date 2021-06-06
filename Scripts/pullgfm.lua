@@ -10,6 +10,12 @@ programs = {
 
 }
 
+arg = {...}
+
+if(#arg ~= 1) then
+	print("Wrong number of arguments: USAGE pullfgm <destination_folder>")
+	os.exit(1)
+end
 
 for _, element in ipairs(libs) do
 	os.execute("wget --no-check-certificate --content-disposition " .. element[2] .. " " .. arg[1] .. "/Lib/" .. element[1])
@@ -18,3 +24,4 @@ end
 for _, element in ipairs(programs) do
 	os.execute("wget --no-check-certificate --content-disposition " .. element[2] .. " " .. arg[1] .. "/Lib/" .. element[1])
 end
+
