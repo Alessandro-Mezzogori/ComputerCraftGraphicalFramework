@@ -28,9 +28,9 @@ if(arg[#arg]:sub(1, 1) ~= '/') then
 	os.exit(2)
 end
 
-for _, v in pair(arg) do
+for _, v in pairs(arg) do
 	for i, opt in ipairs(options) do
-		if opt == v then
+		if opt[1] == v then
 			options[i][2] = true
 		end
 	end
