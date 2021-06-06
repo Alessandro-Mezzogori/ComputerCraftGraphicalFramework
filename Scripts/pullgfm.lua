@@ -11,7 +11,7 @@ programs = {
 }
 
 arg = {...}
-downloadString = "wget --no-check-certificate --content-disposition -f"
+downloadString = "wget --no-check-certificate --content-disposition -f" 
 
 options = {
 	{"-l", false},
@@ -24,7 +24,7 @@ if(#arg < 1) then
 end
 
 if(arg[#arg]:sub(1, 1) ~= '/') then
-	print("The last paramter " .. arg[#arg] .. " must be a absolute path")
+	print("The last parameter " .. arg[#arg] .. " must be a absolute path")
 	os.exit(2)
 end
 
@@ -41,7 +41,7 @@ print("Welcome to the pull script for GraphicalFramework (LUA 5.2)...")
 if options[1][2] == true then
 	print("Pulling GraphicalFramework libraries...")
 	for _, element in ipairs(libs) do
-		os.execute(downloadString .. element[2] .. " " .. arg[#arg] .. "/Lib/" .. element[1])
+		os.execute(downloadString .. " " .. element[2] .. " " .. arg[#arg] .. "/Lib/" .. element[1])
 	end
 	print("Finished pulling")
 end
