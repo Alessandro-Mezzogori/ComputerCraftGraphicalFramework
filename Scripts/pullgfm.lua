@@ -23,6 +23,11 @@ if(#arg ~= 1) then
 	os.exit(1)
 end
 
+if(arg[1]:sub(1, 1) ~= '/') then
+	print("The first paramter " .. arg[1] .. " must be a absolute path")
+	os.exit(2)
+end
+
 for _, v in pair(arg) do
 	for i, opt in ipairs(options) do
 		if opt == v then
@@ -32,11 +37,6 @@ for _, v in pair(arg) do
 end
 
 print("Welcome to the pull script for GraphicalFramework (LUA 5.2)...")
-print("")
-print("Do you want to pull the bundled Programs too (y/n)? ")
-
-
-local programDownload = io.read()
 
 if options[1][2] == true then
 	print("Pulling GraphicalFramework libraries...")
