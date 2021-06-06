@@ -18,13 +18,13 @@ options = {
 	{"-p", false},
 }
 
-if(#arg ~= 1) then
+if(#arg >= 1) then
 	print("Wrong number of arguments: USAGE pullfgm <destination_folder>")
 	os.exit(1)
 end
 
-if(arg[1]:sub(1, 1) ~= '/') then
-	print("The first paramter " .. arg[1] .. " must be a absolute path")
+if(arg[#arg]:sub(1, 1) ~= '/') then
+	print("The last paramter " .. arg[1] .. " must be a absolute path")
 	os.exit(2)
 end
 
@@ -41,7 +41,7 @@ print("Welcome to the pull script for GraphicalFramework (LUA 5.2)...")
 if options[1][2] == true then
 	print("Pulling GraphicalFramework libraries...")
 	for _, element in ipairs(libs) do
-		os.execute(downloadString .. element[2] .. " " .. arg[1] .. "/Lib/" .. element[1])
+		os.execute(downloadString .. element[2] .. " " .. arg[#arg] .. "/Lib/" .. element[1])
 	end
 	print("Finished pulling")
 end
