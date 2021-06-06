@@ -24,7 +24,7 @@ if(#arg >= 1) then
 end
 
 if(arg[#arg]:sub(1, 1) ~= '/') then
-	print("The last paramter " .. arg[1] .. " must be a absolute path")
+	print("The last paramter " .. arg[#arg] .. " must be a absolute path")
 	os.exit(2)
 end
 
