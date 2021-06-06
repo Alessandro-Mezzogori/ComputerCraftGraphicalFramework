@@ -1,7 +1,7 @@
 local event = require "event"
 
 -- event_manager table module
-eventManagerTable = {}
+event_manager = {}
 
 runningEventLoop = true
 char_space = string.byte(" ")
@@ -52,7 +52,7 @@ end
   IMPORTANT:
     background event handlers MUST be cleaned up using "unregisterAllEventHandlers(true)" to not have unexpected behaviour
 ]]--
-function eventManagerTable.registerEventHandler(eventName, eventHandler, inBackground)
+function event_manager.registerEventHandler(eventName, eventHandler, inBackground)
   local eventHandlerTable = foregroundEventHandlers
   if( inBackground == true ) then
     eventHandlerTable = backgroundEventHandlers
@@ -62,7 +62,7 @@ function eventManagerTable.registerEventHandler(eventName, eventHandler, inBackg
   registerEventHandlerHelper(eventName, eventHandler, eventHandlerTable)
 end
 
-function eventManagerTable.unregisterEventHandler(eventName, eventHandler, inBackground)
+function event_manager.unregisterEventHandler(eventName, eventHandler, inBackground)
   local eventHandlerTable = foregroundEventHandlers
   if(inBackground == true) then eventHandlerTable = backgroundEventHandlers end
   -- if there are no eventhandlers for an event name print info message and return
@@ -109,7 +109,7 @@ function isEventHandlerRegistered(eventName, eventHandler, inBackground)
   return false -- the handler was not found so return false
 end
 
-function eventManagerTable.unregisterAllEventHandlers(inBackground)
+function event_manager.unregisterAllEventHandlers(inBackground)
   local eventHandlerTable = foregroundEventHandlers
   if (inBackground == true) then eventHandlerTable = backgroundEventHandlers end
 
@@ -142,7 +142,7 @@ function stopEventLoop(address, char, code, playerName)
   end
 end
 
-function eventManagerTable.startEventLoop()
+function event_manager.startEventLoop()
   local stopEventName = "key_up"
   local stopEventHandler = stopEventLoop
   
@@ -160,7 +160,7 @@ function eventManagerTable.startEventLoop()
 end
 
 -- clean up any eventHandler from previous calls
-eventManagerTable.unregisterAllEventHandlers()
-eventManagerTable.unregisterAllEventHandlers(true)
+event_manager.unregisterAllEventHandlers()
+event_manager.unregisterAllEventHandlers(true)
 
-return eventManagerTable
+return event_manager

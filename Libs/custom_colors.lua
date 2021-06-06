@@ -1,9 +1,9 @@
 local bit32 = require "bit32"
 
-colorsTable = {}
+custom_colors = {}
 
-colorsTable.BLUE = 0x296eb4
-colorsTable.DARK_PURPLE = 0x37123c
+custom_colors.BLUE = 0x296eb4
+custom_colors.DARK_PURPLE = 0x37123c
 
 function getRGB(color)
   local r = bit32.rshift(bit32.band(color, 0xFF0000), 16)
@@ -16,7 +16,7 @@ function getHEX(rgbTable)
   return bit32.lshift(rgbTable[1], 16) + bit32.lshift(rgbTable[2], 8) + rgbTable[3]
 end
 
-function colorsTable.darkenColor(color, percentage)
+function custom_colors.darkenColor(color, percentage)
   rgbValue = getRGB(color)
   for _, component in ipairs(rgbValue) do
     rgbValue[_] = math.floor(component - component*percentage)
@@ -25,4 +25,4 @@ function colorsTable.darkenColor(color, percentage)
   return getHEX(rgbValue)  
 end
 
-return colorsTable
+return custom_colors

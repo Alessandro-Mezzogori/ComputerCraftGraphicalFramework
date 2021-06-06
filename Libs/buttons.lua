@@ -3,14 +3,14 @@ local eventManager = require "event_manager"
 local helpers = require "helper_functions"
 
 -- module's table
-buttonsTable = {}
+buttons = {}
 
 -- element: x:number , y:number , xSize: number, ySize: number, color: color, handler: function, pressed: bool, darken: bool
 button_mapping = {}
 
 -- button functions 
 
-function buttonsTable.createButton(x, y, xSize, ySize, color, handler, darkenOnPress)
+function buttons.createButton(x, y, xSize, ySize, color, handler, darkenOnPress)
   darkenOnPress = darkenOnPress or false
 
   table.insert(
@@ -25,15 +25,15 @@ function buttonsTable.createButton(x, y, xSize, ySize, color, handler, darkenOnP
       pressed=false, 
       darken=darkenOnPress
   })
-  drawRectangle(x, y, xSize, ySize, color)
+  drawing.drawRectangle(x, y, xSize, ySize, color)
 end
 
 function updateButtonGUI(bd)
   if bd.darken == true then
     if bd.pressed == true then 
-      drawRectangle(bd.x, bd.y, bd.xSize, bd.ySize, darkenColor(bd.color, 0.2))
+      drawing.drawRectangle(bd.x, bd.y, bd.xSize, bd.ySize, darkenColor(bd.color, 0.2))
     else
-      drawRectangle(bd.x, bd.y, bd.xSize, bd.ySize, bd.color)
+      drawing.drawRectangle(bd.x, bd.y, bd.xSize, bd.ySize, bd.color)
     end
   end      
 end
@@ -73,4 +73,4 @@ end
 -- register the buttonsHandlerDispatcher in the background
 eventManager.registerEventHandler("touch", buttonsHandlerDispatcher, true)
 
-return buttonsTable
+return buttons
