@@ -160,7 +160,7 @@ function eventManagerTable.startEventLoop()
 end
 
 -- clean up any eventHandler from previous calls
-unregisterAllEventHandlers()
-unregisterAllEventHandlers(true)
+eventManagerTable.unregisterAllEventHandlers()
+eventManagerTable.unregisterAllEventHandlers(true)
 
 return eventManagerTable
