@@ -1,10 +1,15 @@
 local custom_colors = require "custom_colors"
 local gpu = require "component".gpu --default gpu
+local event = require "event"
 
+-- module table
+local drawing = {}
+
+-- module params
 local draw_char = " "
 local font_ratio = 21/12 -- height of font / width of font (at 12 pt Calibri)
 local drawingGPU = nil
-local drawing = {}
+local runningEventLoop = false
 
 --[[
   function to bind the passed gpu to be the drawing gpu  
@@ -42,6 +47,18 @@ end
 function drawing.drawSquare(x, y, size, color)
   drawing.drawRectangle(x, y, size, size, color)
 end
+
+-- thread functions 
+function drawing.stopEventLoop()
+	runningEventLoop = false
+end
+
+function drawing.startEventLoop()
+	runningEventLoop = true
+	while runningEventLoop do
+		print(event.pull())
+	end
+end	
 
 -- default initialization
 drawing.bindDrawingGPU(gpu)
