@@ -11,6 +11,9 @@ local font_ratio = 21/12 -- height of font / width of font (at 12 pt Calibri)
 local drawingGPU = nil
 local runningEventLoop = false
 
+local scenes = {} -- table containing all the scenes 
+local currentScene = {} -- current displayed scene
+
 --[[
   function to bind the passed gpu to be the drawing gpu  
   @return: true if the gpu is bound to draw else false
