@@ -91,11 +91,10 @@ end
 
 -- debug functions
 function printEventHandlers()
-  print("eventHandlerTable: ")
   for k, v in pairs(eventHandlerTable) do
     print(k .. ":")
     for _, e in ipairs(v) do
-      print(e)
+      print("   " .. tostring(e))
     end
   end
 end

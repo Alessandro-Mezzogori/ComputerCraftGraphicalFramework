@@ -56,7 +56,7 @@ function insideButtonBoundary(screenX, screenY, bd) -- bd = buttonDescriptor
   return false
 end
 
-function buttonsHandlerDispatcher(playerName, screenX, screenY) -- prototype of touch event handler
+function buttons.buttonsHandlerDispatcher(playerName, screenX, screenY) -- prototype of touch event handler
   -- loop trough all the buttons and call the functino if screenX and screen Y are inside the boundaries
   for _, buttonDescriptor in ipairs(button_mapping) do    
     if (insideButtonBoundary(screenX, screenY, buttonDescriptor)) and ( buttonDescriptor.pressed == false) then      
