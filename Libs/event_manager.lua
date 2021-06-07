@@ -13,13 +13,12 @@ end
 local unknownEventTable = {unknownEvent}
 
 -- tables that holds the event handlers
-foregroundEventHandlers = setmetatable({}, {__index = unknownEventTable })
-backgroundEventHandlers = setmetatable({}, {__index = unknownEventTable })
+eventHandlerTable = setmetatable({}, {__index = unknownEventTable })
 
 -- function to separate eventID from the other parameters
 function handleEvent(eventID, ...)
-  if(eventID and foregroundEventHandlers[eventID] ~= nil) then
-    for _, f in ipairs(foregroundEventHandlers[eventID]) do
+  if(eventID and eventHandlerTable[eventID] ~= nil) then
+    for _, f in ipairs(eventHandlerTable[eventID]) do
       f(...)
     end
   end
@@ -34,7 +33,14 @@ function handleBackgroundEvents(eventID, ...)
 end
 
 -- register event logic
-function registerEventHandlerHelper(eventName, eventHandler, eventHandlerTable)
+
+--[[
+  register a specific event to an handler that will be called in the eventLoop (if in foreground)
+  or by the os itself if in background
+  IMPORTANT:
+    background event handlers MUST be cleaned up using "unregisterAllEventHandlers(true)" to not have unexpected behaviour
+]]--
+function event_manager.registerEventHandler(eventName, eventHandler)
   if eventHandlerTable[eventName] == nil then
     event.listen(eventName, handleEvent) -- binds the handleEvent to the eventName
     eventHandlerTable[eventName] = {eventHandler}
@@ -46,25 +52,7 @@ function registerEventHandlerHelper(eventName, eventHandler, eventHandlerTable)
   end
 end
 
---[[
-  register a specific event to an handler that will be called in the eventLoop (if in foreground)
-  or by the os itself if in background
-  IMPORTANT:
-    background event handlers MUST be cleaned up using "unregisterAllEventHandlers(true)" to not have unexpected behaviour
-]]--
-function event_manager.registerEventHandler(eventName, eventHandler, inBackground)
-  local eventHandlerTable = foregroundEventHandlers
-  if( inBackground == true ) then
-    eventHandlerTable = backgroundEventHandlers
-    event.listen(eventName, handleBackgroundEvents)
-  end
-
-  registerEventHandlerHelper(eventName, eventHandler, eventHandlerTable)
-end
-
-function event_manager.unregisterEventHandler(eventName, eventHandler, inBackground)
-  local eventHandlerTable = foregroundEventHandlers
-  if(inBackground == true) then eventHandlerTable = backgroundEventHandlers end
+function event_manager.unregisterEventHandler(eventName, eventHandler)
   -- if there are no eventhandlers for an event name print info message and return
   if eventHandlerTable[eventName] == nil then
     --print("No eventHandler registered with " .. eventName)
@@ -90,10 +78,7 @@ function event_manager.unregisterEventHandler(eventName, eventHandler, inBackgro
   --print(tostring(eventHandler) .. " was not found in the events associated with " .. eventName)
 end
 
-function isEventHandlerRegistered(eventName, eventHandler, inBackground)
-  local eventHandlerTable = foregroundEventHandlers
-  if(inBackground == true) then eventHandlerTable = backgroundEventHandlers end
-
+function isEventHandlerRegistered(eventName, eventHandler)
   -- if there's no association there's not eventHandler neither  
   if eventHandlerTable[eventName] == nil then
     return false
@@ -109,25 +94,14 @@ function isEventHandlerRegistered(eventName, eventHandler, inBackground)
   return false -- the handler was not found so return false
 end
 
-function event_manager.unregisterAllEventHandlers(inBackground)
-  local eventHandlerTable = foregroundEventHandlers
-  if (inBackground == true) then eventHandlerTable = backgroundEventHandlers end
-
+function event_manager.unregisterAllEventHandlers()
   for i, _ in pairs(eventHandlerTable) do eventHandlerTable[i] = nil end
 end
 
 -- debug functions
 function printEventHandlers()
-  print("ForegroundEventHandlers: ")
-  for k, v in pairs(foregroundEventHandlers) do
-    print(k .. ":")
-    for _, e in ipairs(v) do
-      print(e)
-    end
-  end
-
-  print("BackgroundEventHandlers: ")
-  for k, v in pairs(backgroundEventHandlers) do
+  print("eventHandlerTable: ")
+  for k, v in pairs(eventHandlerTable) do
     print(k .. ":")
     for _, e in ipairs(v) do
       print(e)
@@ -148,7 +122,7 @@ function event_manager.startEventLoop()
   
   -- add a way to stop the loop event 
   if isEventHandlerRegistered(stopEventName, stopEventHandler) == false then
-    registerEventHandler("key_up", stopEventLoop) -- stop event isn't registered so register it
+    event_manager.registerEventHandler("key_up", stopEventLoop) -- stop event isn't registered so register it
   end
   
   --print("Starting Event Loop")

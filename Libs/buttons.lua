@@ -24,7 +24,8 @@ function buttons.createButton(x, y, xSize, ySize, color, handler, darkenOnPress)
       handler=handler, 
       pressed=false, 
       darken=darkenOnPress
-  })
+  	}
+  )
   drawing.drawRectangle(x, y, xSize, ySize, color)
 end
 
@@ -71,6 +72,5 @@ function buttonsHandlerDispatcher(playerName, screenX, screenY) -- prototype of 
 end
 
 -- register the buttonsHandlerDispatcher in the background
-eventManager.registerEventHandler("touch", buttonsHandlerDispatcher, true)
 
 return buttons
