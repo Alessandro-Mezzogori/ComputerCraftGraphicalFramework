@@ -1,11 +1,13 @@
 local event = require "event"
 
 -- event_manager table module
-event_manager = {}
+local event_manager = {}
 
-runningEventLoop = true
-char_space = string.byte(" ")
+--[[ VARIABLES ]]--
 
+local runningEventLoop = true
+
+-- dummy function 
 function unknownEvent() 
   -- do nothing if event want's relevant
 end
@@ -13,7 +15,9 @@ end
 local unknownEventTable = {unknownEvent}
 
 -- tables that holds the event handlers
-eventHandlerTable = setmetatable({}, {__index = unknownEventTable })
+local eventHandlerTable = setmetatable({}, {__index = unknownEventTable })
+
+--[[ FUNCTIONS ]]--
 
 -- function to separate eventID from the other parameters
 function handleEvent(eventID, ...)
@@ -121,7 +125,7 @@ end
     notSafe = false or nil (default) : requires that the method event_manager.stopEventLoop has been registered to at least 1 eventName
 ]]--
 function event_manager.startEventLoop(notSafe)
-  if notSafe or isEventHandlerRegistered(nil, event_manager.stopEventLoop) then
+  if (not notSafe) and (not isEventHandlerRegistered(nil, event_manager.stopEventLoop)) then
     print("ERROR: event_manager.stopEventLoop hasn't been registered as an eventHandler...stopping loopEvent start")
     return
   end

@@ -52,6 +52,12 @@ function drawing.drawSquare(x, y, size, color)
 end
 
 -- thread functions 
+function handleDrawingEvent(eventID, ...)
+	if eventID == "drawing" then
+		drawing.drawSquare(70, 20, 20, 0xFFFFFF)
+	end
+end
+
 function drawing.stopEventLoop()
 	runningEventLoop = false
 end
@@ -59,7 +65,7 @@ end
 function drawing.startEventLoop()
 	runningEventLoop = true
 	while runningEventLoop do
-		print(event.pull())
+		handleDrawingEvent(event.pull()))
 	end
 end	
 

@@ -5,7 +5,12 @@ local drawing = require "drawing"
 
 local gfm = {}
 
-function gfm.start()	
+--[[
+  starts the frameworks threads
+  IMPORTANT:
+    notSafe = false or nil (default) : requires that the method event_manager.stopEventLoop has been registered to at least 1 eventName
+]]--
+function gfm.start(notSafe)	
 	if isEventHandlerRegistered("touch", buttons.buttonsHandlerDispatcher) == false then
 		event_manager.registerEventHandler("touch", buttons.buttonsHandlerDispatcher)
   	end
@@ -19,7 +24,7 @@ function gfm.start()
   		drawing.startEventLoop
   	)
   	-- become the event thread 
-	event_manager.startEventLoop()
+	event_manager.startEventLoop(notSafe)
 
 	-- cleanup 
 	drawingThread:kill()
