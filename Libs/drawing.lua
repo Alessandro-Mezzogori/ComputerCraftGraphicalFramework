@@ -60,7 +60,7 @@ function redrawScene()
 	end
 end
 
-function drawingCleanUp()
+function drawing.drawingCleanUp()
 	local count = #scenes
 	for i=0, count do scenes[i]=nil end
 
