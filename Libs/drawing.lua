@@ -73,7 +73,7 @@ end
 	the scene is created if it wasn't
 ]]--
 function attachToScene(sceneID, elementID)
-	if scenes[sceneID] == nil
+	if scenes[sceneID] == nil then
 		scenes[sceneID] = {elementID}
 	else
 		table.insert(scenes, elementID)
