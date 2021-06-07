@@ -45,7 +45,9 @@ end
 -- debug functions
 function printButtonMapping()
   for k, v in pairs(button_mapping) do
-    print("Button " .. tostring(k) .. " X: " .. tostring(v[1]) .. " Y: " .. tostring(v[2]) .. " W: " .. tostring(v[3]) .. " H: " .. tostring(v[4]) .. " HANDLER: " .. tostring(v[5]))
+  	local str1 = "Button " .. tostring(k) .. " X: " .. tostring(v.x) .. " Y: " .. tostring(v.y) .. " "
+  	local str2 = "W: " .. tostring(v.xSize) .. " H: " .. tostring(v.ySize) .. " HANDLER: " .. tostring(v.handler)
+  	print(str1 .. str2)
   end
 end   
 
