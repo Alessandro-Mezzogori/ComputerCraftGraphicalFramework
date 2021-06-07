@@ -1,6 +1,8 @@
 local drawing = require "drawing"
+local colors = require "custom_colors"
 local eventManager = require "event_manager"
 local helpers = require "helper_functions"
+
 
 -- module's table
 buttons = {}
@@ -32,7 +34,7 @@ end
 function updateButtonGUI(bd)
   if bd.darken == true then
     if bd.pressed == true then 
-      drawing.drawRectangle(bd.x, bd.y, bd.xSize, bd.ySize, darkenColor(bd.color, 0.2))
+      drawing.drawRectangle(bd.x, bd.y, bd.xSize, bd.ySize, colors.darkenColor(bd.color, 0.2))
     else
       drawing.drawRectangle(bd.x, bd.y, bd.xSize, bd.ySize, bd.color)
     end

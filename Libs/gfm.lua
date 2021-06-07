@@ -3,8 +3,10 @@ local buttons = require "buttons"
 
 local gfm = {}
 
-function gfm.start()
-	event_manager.registerEventHandler("touch", buttons.buttonsHandlerDispatcher)
+function gfm.start()	
+	if isEventHandlerRegistered("touch", buttons.buttonsHandlerDispatcher) == false then
+		event_manager.registerEventHandler("touch", buttons.buttonsHandlerDispatcher)
+  	end
 	event_manager.startEventLoop()
 end
 
