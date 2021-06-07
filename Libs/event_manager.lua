@@ -71,15 +71,26 @@ end
 
 function isEventHandlerRegistered(eventName, eventHandler)
   -- if there's no association there's not eventHandler neither  
-  if eventHandlerTable[eventName] == nil then
-    return false
+  local eventNames = {}
+  if eventName == nil then
+    for evtName, _ in pairs(eventHandlerTable) do 
+      table.insert(eventNames, evtName)
+    end 
+  else
+    table.insert(eventNames, eventName)
   end
 
-  --loop to search for the eventHandler inside of the associated table
-  for _, handler in ipairs(eventHandlerTable[eventName]) do
-    -- handler found
-    if handler == eventHandler then        
-      return true
+  for _, evtName in ipairs(eventNames) do
+    if eventHandlerTable[evtName] == nil then
+      return false
+    end
+
+    --loop to search for the eventHandler inside of the associated table
+    for _, handler in ipairs(eventHandlerTable[evtName]) do
+      -- handler found
+      if handler == eventHandler then        
+        return true
+      end
     end
   end
   return false -- the handler was not found so return false
@@ -100,21 +111,20 @@ function printEventHandlers()
 end
 
 -- event functions 
-function stopEventLoop(address, char, code, playerName)
-  if( char == char_space ) then
-    runningEventLoop = false
-  end
+function event_manager.stopEventLoop(address, char, code, playerName)
+  runningEventLoop = false
 end
 
-function event_manager.startEventLoop()
-  local stopEventName = "key_up"
-  local stopEventHandler = stopEventLoop
-  
-  -- add a way to stop the loop event 
-  if isEventHandlerRegistered(stopEventName, stopEventHandler) == false then
-    event_manager.registerEventHandler("key_up", stopEventLoop) -- stop event isn't registered so register it
+--[[
+  starts the pulling loop event
+  IMPORTANT:
+    notSafe = false or nil (default) : requires that the method event_manager.stopEventLoop has been registered to at least 1 eventName
+]]--
+function event_manager.startEventLoop(notSafe)
+  if notSafe or isEventHandlerRegistered(nil, event_manager.stopEventLoop) then
+    print("ERROR: event_manager.stopEventLoop hasn't been registered as an eventHandler...stopping loopEvent start")
+    return
   end
-  
   --print("Starting Event Loop")
   -- run loop event    
   runningEventLoop = true
@@ -122,9 +132,5 @@ function event_manager.startEventLoop()
     handleEvent(event.pull())
   end
 end
-
--- clean up any eventHandler from previous calls
-event_manager.unregisterAllEventHandlers()
-event_manager.unregisterAllEventHandlers(true)
 
 return event_manager
