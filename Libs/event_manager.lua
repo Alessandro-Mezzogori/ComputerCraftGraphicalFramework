@@ -24,14 +24,6 @@ function handleEvent(eventID, ...)
   end
 end
 
-function handleBackgroundEvents(eventID, ...)
- if(eventID and backgroundEventHandlers[eventID] ~= nil) then
-    for _, f in ipairs(backgroundEventHandlers[eventID]) do
-      f(...)
-    end
-  end
-end
-
 -- register event logic
 
 --[[
@@ -42,7 +34,6 @@ end
 ]]--
 function event_manager.registerEventHandler(eventName, eventHandler)
   if eventHandlerTable[eventName] == nil then
-    event.listen(eventName, handleEvent) -- binds the handleEvent to the eventName
     eventHandlerTable[eventName] = {eventHandler}
     
     --print("Registerd eventHandler: " .. tostring(eventHandler) .. " to event " .. eventName)
