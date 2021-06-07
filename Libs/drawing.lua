@@ -13,12 +13,10 @@ local runningEventLoop = false
 
 -- array of elements aka {<drawing function>, <table of params>} -> the id of the entry is the element id
 local elements = {
-	{drawingFunction=drawSquare, params={50, 20, 20, 0xFFFFFF}} -- one example element
 }
 
 -- table containing all the scenes, a scene is an array of element id's
 local scenes = {
-	{1}
 } 
 
 local currentScene = 1  -- current idnex of displayed scene
@@ -53,26 +51,61 @@ function drawRectangle(x, y, xSize, ySize, color)
   drawingGPU.setBackground(saved_color)
 end
 
---[[ 
-  wrapper for drawRectangle with same side size
-]]--
-function drawSquare(x, y, size, color)
-  drawing.drawRectangle(x, y, size, size, color)
-end
-
 --############### SCENE ###############--
 function redrawScene()
 	-- TODO add a clear screen function
 	-- for each element id call it's drawing function 
 	for _, elementID in ipairs(scenes[currentScene]) do
-		elements[elementID].drawingFunction(elements[elementID].params)
+		elements[elementID].drawingFunction(table.unpack(elements[elementID].params))
 	end
+end
+
+function drawingCleanUp()
+	local count = #scenes
+	for i=0, count do scenes[i]=nil end
+
+	count = #elements
+	for i=0, count do elements[i]=nil end 
+end
+
+--[[
+	adds element to specific scene
+	the scene is created if it wasn't
+]]--
+function attachToScene(sceneID, elementID)
+	if scenes[sceneID] == nil
+		scenes[sceneID] = {elementID}
+	else
+		table.insert(scenes, elementID)
+	end
+end
+
+function setCurrentScene(sceneID)
+	currentScene = sceneID
+end
+
+--############### ELEMENTS ###############--
+function createElement(drawingFunction, ...)
+	table.insert(elements, {drawingFunction=drawingFunction, ...})
+	return #elements
+end
+
+function drawing.createSquare(x, y, size, color)
+	createElement(drawRectangle, x, y, size, size, color)
+end
+
+function drawing.createRectangle(x, y, xSize, ySize, color)
+	createElement(drawRectangle, x, y, xSize, ySize, color)
 end
 
 --############### THREAD ###############-- 
 function handleDrawingEvent(eventID, ...)
 	if eventID == "drawing" then
 		redrawScene()
+	end
+
+	if eventID == "drawing_setscene" then
+		setCurrentScene(...)
 	end
 end
 
@@ -86,7 +119,7 @@ function drawing.startEventLoop()
 
 	runningEventLoop = true
 	while runningEventLoop do
-		handleDrawingEvent(event.pull()))
+		handleDrawingEvent(event.pull())
 	end
 end	
 

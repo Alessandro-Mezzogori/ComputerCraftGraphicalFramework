@@ -2,8 +2,16 @@ local event_manager = require "event_manager"
 local buttons = require "buttons"
 local thread = require "thread"
 local drawing = require "drawing"
+local event = require "event"
 
 local gfm = {}
+
+--[[
+	wrapper functions for event.push so there's not need to import the event modules
+]]
+function gfm.pushEvent(eventID, ...)
+	event.push(eventID, ...)
+end
 
 --[[
   starts the frameworks threads
