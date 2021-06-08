@@ -21,7 +21,7 @@ local eventHandlerTable = setmetatable({}, {__index = unknownEventTable })
 
 -- function to separate eventID from the other parameters
 function handleEvent(eventID, ...)
-  if(eventID and eventHandlerTable[eventID] ~= nil) then
+  if(eventID and eventHandlerTable[eventID] ~= nil and #eventHandlerTable[eventID] > 0) then
     for _, f in ipairs(eventHandlerTable[eventID]) do
       f(...)
     end

@@ -1,4 +1,5 @@
 local computer = require("computer")
+local event = require("event")
 
 local helper_functions = {}
 
@@ -19,6 +20,13 @@ function helper_functions.concatTable(dest, src)
 		dest[#dest + 1] = src[i]
 	end
 	return dest 
+end
+
+--[[
+	wrapper functions for event.push so there's not need to import the event modules
+]]
+function helper_functions.pushEvent(eventID, ...)
+	event.push(eventID, ...)
 end
 
 return helper_functions

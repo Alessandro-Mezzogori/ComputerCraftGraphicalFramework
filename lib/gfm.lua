@@ -3,15 +3,11 @@ local buttons = require "buttons"
 local thread = require "thread"
 local drawing = require "drawing"
 local event = require "event"
+local helpers = require "helper_functions"
 
 local gfm = {}
 
---[[
-	wrapper functions for event.push so there's not need to import the event modules
-]]
-function gfm.pushEvent(eventID, ...)
-	event.push(eventID, ...)
-end
+
 
 --[[
   starts the frameworks threads
@@ -24,10 +20,7 @@ function gfm.start(notSafe)
   	end
 
   	-- start drawing thread
-  	if isEventHandlerRegistered("touch", drawing.stopEventLoop) == false then
-		event_manager.registerEventHandler("touch", drawing.stopEventLoop)
-  	end
-
+  	
   	local drawingThread = thread.create(
   		drawing.startEventLoop
   	)

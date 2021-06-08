@@ -7,44 +7,35 @@ local helpers = require "helper_functions"
 -- module's table
 buttons = {}
 
--- element: x:number , y:number , xSize: number, ySize: number, color: color, handler: function, pressed: bool, darken: bool
-button_mapping = {}
+-- element: drawingElementID: number, handler: function, pressed: bool, darken: bool
+buttonMapping = {}
 
 -- button functions 
 
-function buttons.createButton(x, y, xSize, ySize, color, handler, darkenOnPress)
+function buttons.createButton(x, y, xSize, ySize, rectColor, text, textColor, handler, darkenOnPress)
   darkenOnPress = darkenOnPress or false
 
-  table.insert(
-    button_mapping, 
-    {
-      x=x, 
-      y=y, 
-      xSize=xSize, 
-      ySize=ySize, 
-      color=color, 
-      handler=handler, 
-      pressed=false, 
-      darken=darkenOnPress
-  	}
-  )
-  drawing.drawRectangle(x, y, xSize, ySize, color)
+  local eid = drawing.createRectangle(x, y, xSize, ySize, rectColor, text, textColor)
+
+  buttonMapping[eid] = {
+    eid=eid, --doubled for easier access and readability
+    handler=handler, 
+    pressed=false, 
+    darken=darkenOnPress
+  }
+  return eid
 end
 
 function updateButtonGUI(bd)
-  if bd.darken == true then
-    if bd.pressed == true then 
-      drawing.drawRectangle(bd.x, bd.y, bd.xSize, bd.ySize, colors.darkenColor(bd.color, 0.2))
-    else
-      drawing.drawRectangle(bd.x, bd.y, bd.xSize, bd.ySize, bd.color)
-    end
+  if bd.darken and bd.pressed then
+    helpers.pushEvent(drawing.events.DARKEN_ELEMS, bd.eid)
   end      
 end
 
 
 -- debug functions
 function printButtonMapping()
-  for k, v in pairs(button_mapping) do
+  for k, v in pairs(buttonMapping) do
   	local str1 = "Button " .. tostring(k) .. " X: " .. tostring(v.x) .. " Y: " .. tostring(v.y) .. " "
   	local str2 = "W: " .. tostring(v.xSize) .. " H: " .. tostring(v.ySize) .. " HANDLER: " .. tostring(v.handler)
   	print(str1 .. str2)
@@ -52,25 +43,18 @@ function printButtonMapping()
 end   
 
 -- managing functions
-function insideButtonBoundary(screenX, screenY, bd) -- bd = buttonDescriptor
-  -- buttonDescriptor is an element of the buttonMapping table
-  if (screenX >= bd.x and screenX <= bd.x + bd.xSize) and (screenY >= bd.y and screenY <= bd.y + bd.ySize) then
-    return true
-  end
-  return false
-end
 
 function buttons.buttonsHandlerDispatcher(playerName, screenX, screenY) -- prototype of touch event handler
   -- loop trough all the buttons and call the functino if screenX and screen Y are inside the boundaries
-  for _, buttonDescriptor in ipairs(button_mapping) do    
-    if (insideButtonBoundary(screenX, screenY, buttonDescriptor)) and ( buttonDescriptor.pressed == false) then      
-      buttonDescriptor.pressed = true
-      updateButtonGUI(buttonDescriptor)
+  for _, eid in pairs(drawing.getActiveElementIDs()) do    
+    if (buttonMapping[eid] ~= nil) and (drawing.isInsideElement(screenX, screenY, eid)) and (buttonMapping[eid].pressed == false) then      
+      buttonMapping[eid].pressed = true
+      updateButtonGUI(buttonMapping[eid])
       
-      buttonDescriptor.handler(buttonDescriptor)
+      buttonMapping[eid].handler(buttonDescriptor)
       
-      buttonDescriptor.pressed = false
-      updateButtonGUI(buttonDescriptor)
+      buttonMapping[eid].pressed = false
+      updateButtonGUI(buttonMapping[eid])
     end
   end
 end
