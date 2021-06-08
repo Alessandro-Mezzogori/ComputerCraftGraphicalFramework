@@ -55,6 +55,8 @@ end
 function redrawScene()
 	-- TODO add a clear screen function
 	-- for each element id call it's drawing function 
+	local w, h = drawingGPU.getViewport()
+	drawingGPU.fill(1, 1, w, h, draw_char)
 	for _, elementID in ipairs(scenes[currentScene]) do
 		elements[elementID].drawingFunction(table.unpack(elements[elementID].params))
 	end
@@ -72,11 +74,13 @@ end
 	adds element to specific scene
 	the scene is created if it wasn't
 ]]--
-function attachToScene(sceneID, elementID)
+function drawing.attachToScene(sceneID, elementID)
+	sceneID = currentScene or sceneID
+
 	if scenes[sceneID] == nil then
 		scenes[sceneID] = {elementID}
 	else
-		table.insert(scenes, elementID)
+		table.insert(scenes[sceneID], elementID)
 	end
 end
 
@@ -86,16 +90,16 @@ end
 
 --############### ELEMENTS ###############--
 function createElement(drawingFunction, ...)
-	table.insert(elements, {drawingFunction=drawingFunction, ...})
+	table.insert(elements, {drawingFunction=drawingFunction, params={...}})
 	return #elements
 end
 
 function drawing.createSquare(x, y, size, color)
-	createElement(drawRectangle, x, y, size, size, color)
+	return createElement(drawRectangle, x, y, size, size, color)
 end
 
 function drawing.createRectangle(x, y, xSize, ySize, color)
-	createElement(drawRectangle, x, y, xSize, ySize, color)
+	return createElement(drawRectangle, x, y, xSize, ySize, color)
 end
 
 --############### THREAD ###############-- 
