@@ -57,6 +57,10 @@ function redrawScene()
 	-- for each element id call it's drawing function 
 	local w, h = drawingGPU.getViewport()
 	drawingGPU.fill(1, 1, w, h, draw_char)
+
+	-- if there's no scene stop redrawing
+	if scenes[currentScene] == nil then return end
+
 	for _, elementID in ipairs(scenes[currentScene]) do
 		elements[elementID].drawingFunction(table.unpack(elements[elementID].params))
 	end
@@ -75,7 +79,7 @@ end
 	the scene is created if it wasn't
 ]]--
 function drawing.attachToScene(sceneID, elementID)
-	sceneID = currentScene or sceneID
+	sceneID = sceneID or currentScene
 
 	if scenes[sceneID] == nil then
 		scenes[sceneID] = {elementID}
