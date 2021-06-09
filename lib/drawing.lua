@@ -1,6 +1,12 @@
 local custom_colors = require "custom_colors"
-local gpu = require "component".gpu --default gpu
 local event = require "event"
+local helpers = require "helper_functions"
+
+--[[
+	README:
+		before doing anything with the drawing module functions
+		the function setUp must be called to prevent any unknown behaviour
+]]--
 
 -- module table
 local drawing = {}
@@ -47,25 +53,35 @@ function computeAspectRatio()
   return (h/w)*font_ratio
 end
 
+
+--############### SET UP FUNCTIONS ###############--
+--[[
+	sets up all the params to avoid behaviours
+]]-- 
+function drawing.setUp(gpu)
+	local defaultGPU = require "component".gpu --default gpu
+	drawing.bindDrawingGPU(gpu or defaultGPU)
+	drawing.drawingCleanUp()
+end
+
 --############### DRAWING FUNCTIONS ###############--
 --[[
   draws a rectangle with the specific parameters  
   Note: the origin (0,0) is the upper-left corner of the screen
         color is an hex value 32 bit
 ]]--
-function drawRectangle(x, y, xSize, ySize, rectColor, text, textColor)
+function drawRectangle(params)
   local savedBGColor = drawingGPU.getBackground()
   local savedFGColor = drawingGPU.getForeground()
-  drawingGPU.setBackground(rectColor or savedBGColor)
-  drawingGPU.setForeground(textColor or savedFGColor)
+  drawingGPU.setBackground(params.color or savedBGColor)
+  drawingGPU.setForeground(params.textColor or savedFGColor)
 
-  ySize = ySize*computeAspectRatio()
-  drawingGPU.fill(x, y, xSize, ySize, draw_char)
-  if type(text) == "string" then
+  drawingGPU.fill(params.x, params.y, params.xSize, params.ySize, draw_char)
+  if type(params.text) == "string" then
   	drawingGPU.set(
-  		math.floor(x + (xSize - string.len(text))/2), 
-  		math.floor(y + ySize/2), 
-  		text
+  		math.floor(params.x + (params.xSize - string.len(params.text))/2), 
+  		math.floor(params.y + params.ySize/2), 
+  		params.text
   	)	
   end
 
@@ -75,18 +91,28 @@ end
 
 --############### IS INSIDE FUNCTIONS ###############--
 --[[ 
-	all inside functions MUST HAVE the (px,py) pair that is being checked as the first and second param 
-	the other params must be in the same order of it's creator function
-	es: createRectangle(x, y, xSize, ySize) -> isInsideRectangle(px, py, x, y, xSize, ySize) 
+	all inside functions MUST HAVE:
+		-the (px,py) pair that is being checked as the first and second param 
+		-a params table
 ]]--
 
 --[[
 	returns true if the point (px, py) is inside the rectangle with element id "eid" else returns false
 ]]--
-function isInsideRectangle(px, py, x, y, xSize, ySize) 
+function isInsideRectangle(px, py, params) 
+	local x, y, xSize, ySize = params.x, params.y, params.xSize, params.ySize
 	return (px >= x and px <= x + xSize) and (py >= y and py <= y + ySize)
 end
 
+
+--############### GET COLOR FUNCTIONS ###############--
+--[[
+	all the functions contained in this section provide the function to retrieve the color 
+	from the params arguments of the element descriptor
+]]--
+function getColorRectangle(params)
+	return params.color
+end
 
 --############### SCENE ###############--
 function clearDrawingScreen()
@@ -108,7 +134,11 @@ function redrawElements(elementIDs)
 	if elementIDs == nil then return end
 
 	for _, eid in pairs(elementIDs) do
-		elements[eid].drawingFunction(table.unpack(elements[eid].params))
+		if elements[eid] == nil then goto continue end
+
+		elements[eid].drawingFunction(elements[eid].params)
+
+		::continue::
 	end
 end
 
@@ -134,35 +164,57 @@ end
 	@elementID: 
 		-can be either a table of ID's or one single ID
 		-if nil nothing will be attached
+	@returns: the number of elements attached to the scene
 ]]--
 function drawing.attachToScene(sceneID, elementID)
+	if elementID == nil then return false end
+
 	sceneID = sceneID or currentScene
-	local elementTable = {}
-	local sceneTable = {}
-
-	-- transform the parameters to tables
-	if type(sceneID) ~= "table" then
-		sceneTable[1] = sceneID
-	else
-		sceneTable = sceneID
-	end
-
-	if type(elementID) ~= "table" then
-		elementTable[1] = elementID
-	else
-		elementTable = elementID
-	end	
-
+	local elementTable = helpers.toTable(elementID)
+	local sceneTable = helpers.toTable(sceneID)
+	local countAttached = 0
 	-- iterate over the tables adding the contents of elementTable to sceneTable
 	for _, scene in pairs(sceneTable) do
-		for __, element in pairs(elementTable) do
-			if scenes[scene] == nil then
-				scenes[scene] = {element}
-			else
-				table.insert(scenes[scene], element)
+		if scenes[scene] == nil then
+			scenes[scene] = elementTable
+		else
+			helpers.concatTable(scenes[scene], elementTable)
+		end
+		countAttached = countAttached + #elementTable
+	end
+
+	return countAttached
+end
+
+--[[
+	detach an elemen from a scene
+	@sceneID: 
+		-can be either a table of ID's or one single ID
+		-if nil it will be attached to the currentScene
+	@elementID: 
+		-can be either a table of ID's or one single ID
+		-if nil nothing will be attached
+	@returns: the number of elements detached to the scene
+]]--
+function drawing.detachFromScene(sceneID, elementID)
+	if elementID == nil then return end
+	
+	sceneID = sceneID or currentScene
+	local elementTable = helpers.toTable(elementID)
+	local sceneTable = helpers.toTable(sceneID)
+	local countDetached = 0
+	for _, sid in pairs(sceneTable) do
+		for __, elem in pairs(elementTable) do
+			for ___, eid in ipairs(scenes[sid])  do
+				if eid == elem then 
+					scenes[___] = nil 
+					countDetached = countDetached + 1
+				end
 			end
 		end
 	end
+
+	return countDetached
 end
 
 --[[
@@ -174,27 +226,44 @@ function setCurrentScene(sceneID)
 	currentScene = sceneID
 end
 
+--[[
+	returns the scene with the passed sceneID
+	NOTE: can return nil, control is delegated to caller
+]]--
+function getScene(sceneID)
+	return scenes[sceneID]
+end
+
 --############### ELEMENT CREATION ###############--
 
-function createElement(drawingFunction, ...)
+function createElement(drawingFunction, insideFunction, getColor, params)
 	table.insert(
 		elements, 
 		{
 			drawingFunction=drawingFunction, 
-			insideFunction=isInsideRectangle, 
+			insideFunction=insideFunction, 
 			darkened=false,
-			params={...}
+			getColor=getColor,
+			params=params,
 		}
 	)
+
 	return #elements
 end
 
-function drawing.createSquare(x, y, size, color, text, textColor)
-	return createElement(drawRectangle, x, y, size, size, color, text, textColor)
+function drawing.createRectangle(x, y, xSize, ySize, rectColor, text, textColor)
+	-- it is needed to multiply the ySize of all elements to the aspectRatio of the viewport 
+	-- to maintain the ratio between xsize and ysize in the actual screen
+	return createElement(
+		drawRectangle, 
+		isInsideRectangle,
+		getColorRectangle,
+		{x=x, y=y, xSize=xSize, ySize=(ySize*computeAspectRatio()), color=rectColor, text=text, textColor=textColor}
+	)
 end
 
-function drawing.createRectangle(x, y, xSize, ySize, color, text, textColor)
-	return createElement(drawRectangle, x, y, xSize, ySize, color, text, textColor)
+function drawing.createSquare(x, y, size, color, text, textColor)
+	return drawing.createRectangle(x, y, size, size, color, text, textColor)
 end
 
 --############### ELEMENT MANIPULATION ###############-- 
@@ -214,23 +283,25 @@ end
 	toggles the an element to become slightly darker or restores it to the original color
 ]]--
 function toggleDarkenElement(elementIDs)
-	if elements[elementID] == nil then return end
 	local darkenRatio = 0.2
-
 	for _, eid in pairs(elementIDs) do
+		if elements[eid] == nil then goto continue end
+		
+	    --print(elements[eid].params.color)
 		if elements[eid].darkened == false then
 			elements[eid].params.color = custom_colors.darkenColor(elements[eid].params.color, darkenRatio)
 		else
-			elements[eid].params.color = custom_colors.darkenColor(elements[eid].params.color, 1/(1.0 - darkenRatio))
+			elements[eid].params.color = custom_colors.darkenColor(elements[eid].params.color, -darkenRatio/(1.0 - darkenRatio))
 		end
 
-	    elements[eid].darkened = not elements[eid].darkened
+		elements[eid].darkened = not elements[eid].darkened
+	    ::continue::
 	end
 end
 
 --############### CONTROL FUNCTIONS ###############-- 
 function drawing.isInsideElement(x, y, elementID)
-	return elements[elementID].insideFunction(x, y, table.unpack(elements[elementID].params))
+	return elements[elementID].insideFunction(x, y, elements[elementID].params)
 end
 
 --############### THREAD ###############-- 
@@ -252,7 +323,10 @@ end
 
 function drawing.startEventLoop()
 	-- bind the current gpu to be the drawer
-	drawing.bindDrawingGPU(gpu)
+	if drawingGPU == nil then 
+		print("Need to bind drawing gpu before starting the drawingEventLoop")
+		os.exit(-1)
+	end
 
 	runningEventLoop = true
 	while runningEventLoop do

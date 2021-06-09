@@ -16,7 +16,7 @@ end
 	the dest table reference
 ]]--
 function helper_functions.concatTable(dest, src)
-	for i=1, #scr do
+	for i=1, #src do
 		dest[#dest + 1] = src[i]
 	end
 	return dest 
@@ -28,5 +28,21 @@ end
 function helper_functions.pushEvent(eventID, ...)
 	event.push(eventID, ...)
 end
+
+--[[
+	packs the arguments in a table (tables are concatenated)
+]]--
+function helper_functions.toTable(...)
+	local resultTable = {}
+	for i,value in ipairs({...}) do
+		if type(value) == "table" then
+			helper_functions.concatTable(resultTable, value)
+		elseif type(value) ~= nil then
+			resultTable[#resultTable + 1] = value
+		end
+	end
+	return resultTable
+end
+
 
 return helper_functions
