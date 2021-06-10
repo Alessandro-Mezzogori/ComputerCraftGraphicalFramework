@@ -20,7 +20,7 @@ options = {
 }
 
 if(#arg < 1) then
-	print("Wrong number of arguments: USAGE pullfgm <destination_folder>")
+	print("Wrong number of arguments: USAGE pullfgm [-l][-p] <destination_folder>")
 	os.exit(1)
 end
 
