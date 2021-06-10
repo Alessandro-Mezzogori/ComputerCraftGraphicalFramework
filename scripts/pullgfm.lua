@@ -1,10 +1,10 @@
 libs = {
-	{"drawing.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/libs/drawing.lua"}, 
-	{"event_manager.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/libs/event_manager.lua"}, 
-	{"buttons.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/libs/buttons.lua"}, 
-	{"custom_colors.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/libs/custom_colors.lua"}, 
-	{"helper_functions.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/libs/helper_functions.lua"},
-	{"gfm.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/libs/gfm.lua"},
+	{"drawing.lua", "lib/drawing.lua"}, 
+	{"event_manager.lua", "lib/event_manager.lua"}, 
+	{"buttons.lua", "lib/buttons.lua"}, 
+	{"custom_colors.lua", "lib/custom_colors.lua"}, 
+	{"helper_functions.lua", "lib/helper_functions.lua"},
+	{"gfm.lua", "lib/gfm.lua"},
 }
 
 programs = {
@@ -39,7 +39,7 @@ end
 
 local libFolder = arg[#arg] .. "/lib"
 local programFolder = arg[#arg] .. "/gfmprograms"
-
+local baseURL = "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/"
 print("Welcome to the pull script for GraphicalFramework (LUA 5.2)...")
 if options[1][2] == true then
 	print("Pulling GraphicalFramework libraries...")
@@ -54,7 +54,7 @@ if options[2][2] == true then
 	print("Pulling Example/Usefull programs...")
 	os.execute("mkdir " .. programFolder)
 	for _, element in ipairs(programs) do
-		os.execute(downloadString .. " " .. element[2] .. " " .. programFolder .. "/" .. element[1])
+		os.execute(downloadString .. " " .. baseURL .. element[2] .. " " .. programFolder .. "/" .. element[1])
 	end
 	print("Finished pulling")
 end
