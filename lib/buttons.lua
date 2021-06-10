@@ -20,7 +20,7 @@ touchableMapping = {}
 
 
 --############### TOUCHABLE CREATION ###############--
-function createTouchable(elementId, handler, darkenOnPress, ...)
+function createTouchable(elementId, handler, darkenOnPress, params)
   darkenOnPress = darkenOnPress or false
 
   touchableMapping[elementId] = {
@@ -28,30 +28,41 @@ function createTouchable(elementId, handler, darkenOnPress, ...)
     handler=handler, 
     pressed=false, 
     darken=darkenOnPress,
-    params={...} -- params for the handler function
+    params=params -- params for the handler function
   }
   return elementId
 end
 
-function buttons.createButton(x, y, xSize, ySize, rectColor, text, textColor, handler, darkenOnPress, ...)
+function buttons.createButton(x, y, xSize, ySize, rectColor, text, textColor, handler, darkenOnPress)
   local eid = drawing.createRectangle(x, y, xSize, ySize, rectColor, text, textColor)
-  return createTouchable(eid, handler, darkenOnPress, ...)
-end
-
-function buttons.createSlider(x, y, xSize, ySize, rectColor, sliderColor)
+  return createTouchable(eid, handler, darkenOnPress)
 end
 
 function updateButtonGUI(bd)
   if bd.darken then
     helpers.pushEvent(drawing.events.DARKEN_ELEMS, bd.eid)
-    helpers.pushEvent(drawing.events.REDRAW_ELEMS, bd.eid)
   end     
+    
+  helpers.pushEvent(drawing.events.REDRAW_ELEMS, bd.eid)
+end
+
+--############### SLIDER ###############--
+function sliderGeneralHandler(bd, playerName, screenX, screenY)
+  local ed = drawing.getElementDescriptor(bd.eid)
+  bd.params.sliderFill = math.min(1.0, math.max(0.0, (screenX - ed.params.sX)/ed.params.sXSize))
+  ed.params.sliderFill = bd.params.sliderFill
+  bd.params.handler(bd)
+end
+
+function buttons.createSlider(x, y, xSize, ySize, rectColor, sliderColor, handler, direction, sliderFill, marginX, marginY)
+  local eid = drawing.createSlider(x, y, xSize, ySize, rectColor, sliderColor, sliderFill, marginX, marginY)
+  return createTouchable(eid, sliderGeneralHandler, false, {handler=handler, direction=direction, sliderFill=sliderFill})
 end
 
 
 --############### DEBUG FUNCTIONS ###############--
 
-function printtouchableMapping()
+function printTouchableMapping()
   for k, v in pairs(touchableMapping) do
   	local str1 = "Button EID: " .. tostring(k) .. " " 
   	local str2 = " HANDLER: " .. tostring(v.handler) .. " darkenOnPress: " ..tostring(v.darken)
@@ -69,7 +80,7 @@ function buttons.buttonsHandlerDispatcher(playerName, screenX, screenY) -- proto
       touchableMapping[eid].pressed = true
       updateButtonGUI(touchableMapping[eid])
       
-      touchableMapping[eid].handler(touchableMapping[eid])
+      touchableMapping[eid].handler(touchableMapping[eid], playerName, screenX, screenY)
       
       touchableMapping[eid].pressed = false
       updateButtonGUI(touchableMapping[eid])

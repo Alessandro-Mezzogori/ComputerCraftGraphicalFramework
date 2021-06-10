@@ -70,13 +70,17 @@ end
   Note: the origin (0,0) is the upper-left corner of the screen
         color is an hex value 32 bit
 ]]--
-function drawRectangle(params)
+function drawRectangle(x, y, xSize, ySize)
+  drawingGPU.fill(x, y, xSize, ySize, draw_char)
+end
+
+function drawTextRectangle(params)
   local savedBGColor = drawingGPU.getBackground()
   local savedFGColor = drawingGPU.getForeground()
-  drawingGPU.setBackground(params.color or savedBGColor)
   drawingGPU.setForeground(params.textColor or savedFGColor)
+  drawingGPU.setBackground(params.color or savedBGColor)
 
-  drawingGPU.fill(params.x, params.y, params.xSize, params.ySize, draw_char)
+  drawRectangle(params.x, params.y, params.xSize, params.ySize)
   if type(params.text) == "string" then
   	drawingGPU.set(
   		math.floor(params.x + (params.xSize - string.len(params.text))/2), 
@@ -84,9 +88,21 @@ function drawRectangle(params)
   		params.text
   	)	
   end
+  drawingGPU.setForeground(savedFGColor)
+  drawingGPU.setBackground(savedBGColor)
+end
+
+function drawSlider(params)
+  -- draw external triangle
+  local savedBGColor = drawingGPU.getBackground()
+
+  drawingGPU.setBackground(params.rectColor or savedBGColor)
+  drawRectangle(params.x, params.y, params.xSize, params.ySize)
+
+  drawingGPU.setBackground(params.sliderColor or savedBGColor)  
+  drawRectangle(params.sX, params.sY, params.sXSize*params.sliderFill, params.sYSize)
 
   drawingGPU.setBackground(savedBGColor)
-  drawingGPU.setForeground(savedFGColor)
 end
 
 --############### IS INSIDE FUNCTIONS ###############--
@@ -104,6 +120,10 @@ function isInsideRectangle(px, py, params)
 	return (px >= x and px <= x + xSize) and (py >= y and py <= y + ySize)
 end
 
+function isInsideSlider(px, py, params)
+	local x, y, xSize, ySize = params.x, params.y, params.xSize, params.ySize
+	return (px >= x and px <= x + xSize) and (py >= y and py <= y + ySize)
+end
 
 --############### GET COLOR FUNCTIONS ###############--
 --[[
@@ -112,6 +132,10 @@ end
 ]]--
 function getColorRectangle(params)
 	return params.color
+end
+
+function getColorSlider(params)
+	return params.sliderColor
 end
 
 --############### SCENE ###############--
@@ -255,7 +279,7 @@ function drawing.createRectangle(x, y, xSize, ySize, rectColor, text, textColor)
 	-- it is needed to multiply the ySize of all elements to the aspectRatio of the viewport 
 	-- to maintain the ratio between xsize and ysize in the actual screen
 	return createElement(
-		drawRectangle, 
+		drawTextRectangle, 
 		isInsideRectangle,
 		getColorRectangle,
 		{x=x, y=y, xSize=xSize, ySize=(ySize*computeAspectRatio()), color=rectColor, text=text, textColor=textColor}
@@ -264,6 +288,26 @@ end
 
 function drawing.createSquare(x, y, size, color, text, textColor)
 	return drawing.createRectangle(x, y, size, size, color, text, textColor)
+end
+
+function drawing.createSlider(x, y, xSize, ySize, rectColor, sliderColor, sliderFill, marginX, marginY)
+	-- params control and preparation 
+	sliderFill = math.min(sliderFill, 1.0)
+	marginX, marginY = (marginX or 0.03), (marginY or 0.03)
+	ySize = ySize*computeAspectRatio()
+
+	marginX, marginY = math.floor((x + xSize)*marginX), math.floor((y + ySize)*marginY)
+	return createElement(
+		drawSlider,
+		isInsideSlider,
+		getColorSlider,
+		{
+			x=x, y=y, xSize=xSize, ySize=ySize, 
+			sX=(x+marginX), sY=(y+marginY), sXSize=(xSize-2*marginX), sYSize=(ySize-2*marginY), 
+			rectColor=rectColor, sliderColor=sliderColor,
+			sliderFill = sliderFill
+		}
+	)
 end
 
 --############### ELEMENT MANIPULATION ###############-- 

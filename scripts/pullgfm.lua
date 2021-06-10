@@ -1,10 +1,10 @@
 libs = {
-	{"drawing.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/Libs/drawing.lua"}, 
-	{"event_manager.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/Libs/event_manager.lua"}, 
-	{"buttons.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/Libs/buttons.lua"}, 
-	{"custom_colors.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/Libs/custom_colors.lua"}, 
-	{"helper_functions.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/Libs/helper_functions.lua"},
-	{"gfm.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/Libs/gfm.lua"},
+	{"drawing.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/libs/drawing.lua"}, 
+	{"event_manager.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/libs/event_manager.lua"}, 
+	{"buttons.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/libs/buttons.lua"}, 
+	{"custom_colors.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/libs/custom_colors.lua"}, 
+	{"helper_functions.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/libs/helper_functions.lua"},
+	{"gfm.lua", "https://raw.githubusercontent.com/Alessandro-Mezzogori/GraphicalFramework/master/libs/gfm.lua"},
 }
 
 programs = {
