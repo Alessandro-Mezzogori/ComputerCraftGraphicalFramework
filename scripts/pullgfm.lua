@@ -45,7 +45,7 @@ if options[1][2] == true then
 	print("Pulling GraphicalFramework libraries...")
 	os.execute("mkdir " .. libFolder)
 	for _, element in ipairs(libs) do
-		os.execute(downloadString .. " " .. element[2] .. " " .. libFolder .. "/" .. element[1])
+		os.execute(downloadString .. " " .. baseURL .. element[2] .. " " .. libFolder .. "/" .. element[1])
 	end
 	print("Finished pulling")
 end
