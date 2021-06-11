@@ -373,7 +373,7 @@ function drawing.startEventLoop()
 	end
 
 	-- first draw 
-	redrawElements(currentScene)
+	redrawScene(currentScene)
 
 	runningEventLoop = true
 	while runningEventLoop do
