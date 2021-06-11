@@ -158,7 +158,7 @@ function redrawElements(elementIDs)
 	if elementIDs == nil then return end
 
 	for _, eid in pairs(elementIDs) do
-		if elements[eid] == nil then goto continue end
+		if eid == nil or elements[eid] == nil then goto continue end
 
 		elements[eid].drawingFunction(elements[eid].params)
 
@@ -371,6 +371,9 @@ function drawing.startEventLoop()
 		print("Need to bind drawing gpu before starting the drawingEventLoop")
 		os.exit(-1)
 	end
+
+	-- first draw 
+	redrawElements(currentScene)
 
 	runningEventLoop = true
 	while runningEventLoop do
