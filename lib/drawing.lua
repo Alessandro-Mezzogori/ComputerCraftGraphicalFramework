@@ -18,6 +18,11 @@ drawing.events = {
 	REDRAW_ELEMS="drawing_redrawelems",
 }
 
+drawing.directions = {
+	HORIZONTAL=0,
+	VERTICAL=1
+}
+
 -- module params
 local draw_char = " "
 local font_ratio = 21/12 -- height of font / width of font (at 12 pt Calibri)
@@ -93,14 +98,27 @@ function drawTextRectangle(params)
 end
 
 function drawSlider(params)
-  -- draw external triangle
   local savedBGColor = drawingGPU.getBackground()
-
+  
+  -- draw external rectangle
   drawingGPU.setBackground(params.rectColor or savedBGColor)
   drawRectangle(params.x, params.y, params.xSize, params.ySize)
 
+  -- draw internal rectangle
+  -- compute the drawing parameters depending on which direction is oriented the slider
+  local sXSize = params.sXSize
+  local sYSize = params.sYSize
+  local sY = params.sY
+  local sX = params.sX
+  if params.direction == drawing.directions.HORIZONTAL then
+  	sXSize = sXSize*params.sliderFill
+  else
+  	sY = sY + sYSize*(1.0 - params.sliderFill)
+  	sYSize = sYSize*params.sliderFill
+  end
+
   drawingGPU.setBackground(params.sliderColor or savedBGColor)  
-  drawRectangle(params.sX, params.sY, params.sXSize*params.sliderFill, params.sYSize)
+  drawRectangle(sX, sY, sXSize, sYSize)
 
   drawingGPU.setBackground(savedBGColor)
 end
@@ -248,6 +266,7 @@ end
 ]]--
 function setCurrentScene(sceneID)
 	currentScene = sceneID
+	redrawScene()
 end
 
 --[[
@@ -290,8 +309,9 @@ function drawing.createSquare(x, y, size, color, text, textColor)
 	return drawing.createRectangle(x, y, size, size, color, text, textColor)
 end
 
-function drawing.createSlider(x, y, xSize, ySize, rectColor, sliderColor, sliderFill, marginX, marginY)
+function drawing.createSlider(x, y, xSize, ySize, rectColor, sliderColor, direction, sliderFill, marginX, marginY)
 	-- params control and preparation 
+	direction = (direction == drawing.directions.HORIZONTAL) and drawing.directions.HORIZONTAL or drawing.directions.VERTICAL -- default to vertical if not HORIZONTAL
 	sliderFill = math.min(sliderFill, 1.0)
 	marginX, marginY = (marginX or 0.03), (marginY or 0.03)
 	ySize = ySize*computeAspectRatio()
@@ -305,7 +325,7 @@ function drawing.createSlider(x, y, xSize, ySize, rectColor, sliderColor, slider
 			x=x, y=y, xSize=xSize, ySize=ySize, 
 			sX=(x+marginX), sY=(y+marginY), sXSize=(xSize-2*marginX), sYSize=(ySize-2*marginY), 
 			rectColor=rectColor, sliderColor=sliderColor,
-			sliderFill = sliderFill
+			sliderFill = sliderFill, direction=direction
 		}
 	)
 end
@@ -351,7 +371,7 @@ end
 --############### THREAD ###############-- 
 function handleDrawingEvent(eventID, ...)
 	if eventID == drawing.events.REDRAW_SCENE then
-		redrawScene(...)
+		redrawScene()
 	elseif eventID == drawing.events.SET_SCENE then
 		setCurrentScene(...)
 	elseif eventID == drawing.events.DARKEN_ELEMS then

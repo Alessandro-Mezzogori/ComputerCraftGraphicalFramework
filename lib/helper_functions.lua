@@ -44,5 +44,12 @@ function helper_functions.toTable(...)
 	return resultTable
 end
 
+--[[
+	converts any boolean value to a number
+]]
+function helper_functions.boolToNumber(value)
+	return value and 1 or 0
+end
+
 
 return helper_functions

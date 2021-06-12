@@ -11,10 +11,10 @@ local helpers = require "helper_functions"
 ]]--
 
 -- module's table
-buttons = {}
+local buttons = {}
 
 -- element: drawingElementID: number, handler: function, pressed: bool, darken: bool
-touchableMapping = {}
+local touchableMapping = {}
 
 --############### MODULE HANDLERS ###############--
 
@@ -49,13 +49,18 @@ end
 --############### SLIDER ###############--
 function sliderGeneralHandler(bd, playerName, screenX, screenY)
   local ed = drawing.getElementDescriptor(bd.eid)
-  bd.params.sliderFill = math.min(1.0, math.max(0.0, (screenX - ed.params.sX)/ed.params.sXSize))
+  -- if the direction is horizontal use X, if not default to vertical direction
+  local sliderFill = (ed.params.direction == drawing.directions.HORIZONTAL) and (screenX - ed.params.sX)/ed.params.sXSize
+  sliderFill = sliderFill or 1.0 - (screenY - ed.params.sY)/ed.params.sYSize  
+  
+  bd.params.sliderFill = math.min(1.0, math.max(0.0, sliderFill))
   ed.params.sliderFill = bd.params.sliderFill
+  -- call to assigned handler
   bd.params.handler(bd)
 end
 
 function buttons.createSlider(x, y, xSize, ySize, rectColor, sliderColor, handler, direction, sliderFill, marginX, marginY)
-  local eid = drawing.createSlider(x, y, xSize, ySize, rectColor, sliderColor, sliderFill, marginX, marginY)
+  local eid = drawing.createSlider(x, y, xSize, ySize, rectColor, sliderColor, direction, sliderFill, marginX, marginY)
   return createTouchable(eid, sliderGeneralHandler, false, {handler=handler, direction=direction, sliderFill=sliderFill})
 end
 
