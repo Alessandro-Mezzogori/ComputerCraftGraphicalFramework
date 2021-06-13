@@ -8,7 +8,7 @@ local helpers = require "helper_functions"
 local gfm = {}
 
 function gfm.cleanup()
-  event_manager.unregisterAllEventHandlers()
+  event_manager.cleanup()
   drawing.drawingCleanUp()
 end
 

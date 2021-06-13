@@ -1,5 +1,5 @@
 local event = require "event"
-
+local thread = require "thread"
 -- event_manager table module
 local event_manager = {}
 
@@ -16,9 +16,31 @@ local unknownEventTable = {unknownEvent}
 
 -- tables that holds the event handlers
 local eventHandlerTable = setmetatable({}, {__index = unknownEventTable })
+-- tables that holds the functions that are run each loop iteration
+local eventLoopFunctions = setmetatable({}, {__index = unknownEvent })
 
 --[[ FUNCTIONS ]]--
 
+--################ EVENT LOOP FUNCTIONS #################-
+function event_manager.registerLoopFunction(func)
+  if func == nil then return end  
+
+  table.insert(eventLoopFunctions, func)
+  return #eventLoopFunctions
+end
+
+function event_manager.unregisterLoopFunction(func)
+  if func == nil then return end
+
+  for index, value in ipairs(eventLoopFunctions) do
+      if value == func then
+        table.remove(eventLoopFunctions, index)
+        break
+      end
+  end
+end
+
+--################ EVENTS FUNCTIONS #################-
 -- function to separate eventID from the other parameters
 function handleEvent(eventID, ...)
   if(eventID and eventHandlerTable[eventID] ~= nil and #eventHandlerTable[eventID] > 0) then
@@ -104,6 +126,15 @@ function event_manager.unregisterAllEventHandlers()
   for i, _ in pairs(eventHandlerTable) do eventHandlerTable[i] = nil end
 end
 
+function event_manager.unregisterAllLoopFunction()
+  for i, _ in ipairs(eventLoopFunctions) do eventLoopFunctions[i] = nil end
+end
+
+function event_manager.cleanup()
+  event_manager.unregisterAllEventHandlers()
+  event_manager.unregisterAllLoopFunction()
+end
+
 -- debug functions
 function printEventHandlers()
   for k, v in pairs(eventHandlerTable) do
@@ -132,9 +163,23 @@ function event_manager.startEventLoop(notSafe)
   --print("Starting Event Loop")
   -- run loop event    
   runningEventLoop = true
+
+  local loopFunctionThread = thread.create(
+    function()
+      while runningEventLoop == true do
+        for _, func in ipairs(eventLoopFunctions) do
+          func()
+        end
+        os.sleep(1)
+      end
+    end
+  )
+
   while runningEventLoop == true do
     handleEvent(event.pull())
   end
+
+  loopFunctionThread:kill()
 end
 
 return event_manager
